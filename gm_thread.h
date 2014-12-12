@@ -15,19 +15,7 @@ class GmThread {
       return name_;
     }
 
-    bool start() {
-      if (stop_) {
-        loop_thread_.reset(
-            new StoppableThread(
-                NewPermanentCallback(this, &GmThread::threadMain, this)));
-        if (loop_thread_->Start()) {
-          stop_ = false;
-          return true;
-        }
-      }
-      return false;
-    }
-
+    bool start();
     void stop() {
       stop_ = true;
     }
@@ -59,5 +47,18 @@ class GmThread {
 
     DISALLOW_COPY_AND_ASSIGN(GmThread);
 };
+
+inline bool GmThread::start() {
+  if (stop_) {
+    loop_thread_.reset(
+        new StoppableThread(
+            ::NewPermanentCallback(this, &GmThread::threadMain, this)));
+    if (loop_thread_->Start()) {
+      stop_ = false;
+      return true;
+    }
+  }
+  return false;
+}
 }
 #endif /* GM_THREAD_H_ */
