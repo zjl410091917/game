@@ -30,7 +30,7 @@ void GmWorker::processInternal(GmQueue* q) {
   bool need_relink;
 
   Module* module = q->module();
-  for (int32 i = 0; i < FLAGS_exec_count; ++i) {
+  for (int32 i = 0; i < static_cast<uint32>(FLAGS_exec_count); ++i) {
     need_relink = q->pop(&pkg);
     if (pkg == NULL) return;
 

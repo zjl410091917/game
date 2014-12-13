@@ -17,6 +17,9 @@ class GmThread {
 
     bool start();
     void stop() {
+      if (loop_thread_ != NULL) {
+        loop_thread_.reset();
+      }
       stop_ = true;
     }
 
@@ -26,11 +29,13 @@ class GmThread {
         : stop_(true), monitor_(monitor), global_queue_(global_queue), name_(
             name) {
       DCHECK(!name.empty());
+
       DCHECK_NOTNULL(monitor);
       DCHECK_NOTNULL(global_queue);
     }
 
     bool stop_;
+
     Monitor* monitor_;
     GlobalQueue* global_queue_;
 
@@ -52,7 +57,7 @@ inline bool GmThread::start() {
   if (stop_) {
     loop_thread_.reset(
         new StoppableThread(
-            ::NewPermanentCallback(this, &GmThread::threadMain, this)));
+            ::NewPermanentCallback(&GmThread::threadMain, this)));
     if (loop_thread_->Start()) {
       stop_ = false;
       return true;

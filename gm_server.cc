@@ -11,7 +11,6 @@ DEFINE_string(mod_dir, "/etc/gm/", "directory used to store module file");
 namespace gm {
 
 GmServer::~GmServer() {
-  io_thread_.reset();
 }
 
 bool GmServer::init() {
@@ -28,10 +27,10 @@ bool GmServer::init() {
 }
 
 bool GmServer::start() {
+  GmThread* t;
   for (uint32 i = 0; i < worker_; ++i) {
     std::string name("worker: " + std::to_string(i));
-
-    GmThread* t = new GmWorker(name, monitor_.get(), global_queue_.get());
+    t = new GmWorker(name, monitor_.get(), global_queue_.get());
     if (!t->start() || !Add(t)) {
       LOG(WARNING)<<"start thread error, id: " << i;
       delete t;
@@ -39,13 +38,12 @@ bool GmServer::start() {
     }
   }
 
-  io_thread_.reset(new IoThread(monitor_.get(), global_queue_.get()));
-  if (!io_thread_->start()) {
-    io_thread_.reset();
+  t = new IoThread(monitor_.get(), global_queue_.get());
+  if (!t->start() || !Add(t)) {
+    delete t;
     return false;
   }
 
   return true;
 }
-
 }
