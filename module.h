@@ -17,6 +17,7 @@ class Module {
     uint32 key() const {
       return id();
     }
+
     const std::string& name() const {
       return name_;
     }
